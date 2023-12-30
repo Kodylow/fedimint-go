@@ -1,4 +1,4 @@
-# fedimint-go-client
+# Fedimint SDK for Go
 
 This is a Go client that consumes the Fedimint Http Client (https://github.com/kodylow/fedimint-http-client)[https://github.com/kodylow/fedimint-http-client], communicating with it via HTTP and a password. It's a hacky prototype, but it works until we can get a proper Go client for Fedimint. All of the federation handling code happens in the fedimint-http-client, this just exposes a simple API for interacting with the client from Go (will be mirrored in Python and Go).
 
@@ -29,7 +29,7 @@ PASSWORD = 'password'
 
 To install dependencies:
 ```bash
-pip install -r requirements.txt
+go get
 ```
 
 To run (this just runs an example that creates FedimintClient in go and creates an invoice):
