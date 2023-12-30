@@ -1,10 +1,11 @@
 package main
 
 import (
+	"fedimint-go-client/pkg/fedimint"
 	"fmt"
 	"os"
+
 	"github.com/joho/godotenv"
-	"fedimint-go-client/pkg/fedimint"
 )
 
 func main() {
@@ -37,7 +38,7 @@ func main() {
 		Description: "test",
 	}
 
-	invoiceResponse, err := fedimintClient.Modules.Ln.CreateInvoice(invoiceRequest)
+	invoiceResponse, err := fedimintClient.Ln.CreateInvoice(invoiceRequest)
 	if err != nil {
 		fmt.Println("Error creating invoice: ", err)
 		return
@@ -51,7 +52,7 @@ func main() {
 		OperationID: invoiceResponse.OperationID,
 	}
 
-	_, err = fedimintClient.Modules.Ln.AwaitInvoice(awaitInvoiceRequest)
+	_, err = fedimintClient.Ln.AwaitInvoice(awaitInvoiceRequest)
 	if err != nil {
 		fmt.Println("Error awaiting invoice: ", err)
 		return

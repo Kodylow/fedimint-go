@@ -3,22 +3,18 @@ package fedimint
 import (
 	"bytes"
 	"encoding/json"
+	"fedimint-go-client/pkg/fedimint/types"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"fedimint-go-client/pkg/fedimint/types"
 )
 
 type FedimintClient struct {
 	BaseURL  string
 	Password string
-	Modules  Modules
-}
-
-type Modules struct {
-	Ln      LnModule
-	Wallet  WalletModule
-	Mint    MintModule
+	Ln       LnModule
+	Wallet   WalletModule
+	Mint     MintModule
 }
 
 type LnModule struct {
@@ -38,11 +34,10 @@ func NewFedimintClient(baseURL, password string) *FedimintClient {
 		BaseURL:  baseURL + "/fedimint/v2",
 		Password: password,
 	}
-	fc.Modules = Modules{
-		Ln:      LnModule{Client: fc},
-		Wallet:  WalletModule{Client: fc},
-		Mint:    MintModule{Client: fc},
-	}
+	fc.Ln.Client = fc
+	fc.Wallet.Client = fc
+	fc.Mint.Client = fc
+
 	return fc
 }
 
@@ -217,45 +212,45 @@ func (ln *LnModule) SwitchGateway(request SwitchGatewayRequest) (*Gateway, error
 }
 
 type LnInvoiceRequest struct {
-    AmountMsat   int    `json:"amount_msat"`
-    Description  string `json:"description"`
-    ExpiryTime   *int   `json:"expiry_time"`
+	AmountMsat  int    `json:"amount_msat"`
+	Description string `json:"description"`
+	ExpiryTime  *int   `json:"expiry_time"`
 }
 
 type LnInvoiceResponse struct {
-    OperationID string `json:"operation_id"`
-    Invoice     string `json:"invoice"`
+	OperationID string `json:"operation_id"`
+	Invoice     string `json:"invoice"`
 }
 
 type AwaitInvoiceRequest struct {
-    OperationID string `json:"operation_id"`
+	OperationID string `json:"operation_id"`
 }
 
 type LnPayRequest struct {
-    payment_info        string  `json:"payment_info"`
-    amount_msat         *int    `json:"amount_msat"`
-    finish_in_background bool    `json:"finish_in_background"`
-    lnurl_comment       *string `json:"lnurl_comment"`
+	payment_info         string  `json:"payment_info"`
+	amount_msat          *int    `json:"amount_msat"`
+	finish_in_background bool    `json:"finish_in_background"`
+	lnurl_comment        *string `json:"lnurl_comment"`
 }
 
 type LnPayResponse struct {
-    operation_id string `json:"operation_id"`
-    payment_type  string `json:"payment_type"`
-    contract_id   string `json:"contract_id"`
-    fee          int    `json:"fee"`
+	operation_id string `json:"operation_id"`
+	payment_type string `json:"payment_type"`
+	contract_id  string `json:"contract_id"`
+	fee          int    `json:"fee"`
 }
 
 type AwaitLnPayRequest struct {
-    operation_id string `json:"operation_id"`
+	operation_id string `json:"operation_id"`
 }
 
 type Gateway struct {
-    node_pub_key string `json:"node_pub_key"`
-    active       bool   `json:"active"`
+	node_pub_key string `json:"node_pub_key"`
+	active       bool   `json:"active"`
 }
 
 type SwitchGatewayRequest struct {
-    gateway_id string `json:"gateway_id"`
+	gateway_id string `json:"gateway_id"`
 }
 
 // Mint Module
@@ -326,93 +321,93 @@ func (mint *MintModule) Combine(request CombineRequest) (*CombineResponse, error
 }
 
 type FederationIdPrefix struct {
-    Zero, One, Two, Three uint8 `json:"zero"`
+	Zero, One, Two, Three uint8 `json:"zero"`
 }
 
 type TieredMulti struct {
-    Amount []interface{} `json:"amount"`
+	Amount []interface{} `json:"amount"`
 }
 
 type Signature struct {
-    Zero G1Affine `json:"zero"`
+	Zero G1Affine `json:"zero"`
 }
 
 type G1Affine struct {
-    X, Y Fp `json:"x"`
-    Infinity Choice `json:"infinity"`
+	X, Y     Fp     `json:"x"`
+	Infinity Choice `json:"infinity"`
 }
 
 type Fp struct {
-    Zero []uint64 `json:"zero"`
+	Zero []uint64 `json:"zero"`
 }
 
 type Choice struct {
-    Zero uint8 `json:"zero"`
+	Zero uint8 `json:"zero"`
 }
 
 type KeyPair struct {
-    Zero []uint8 `json:"zero"`
+	Zero []uint8 `json:"zero"`
 }
 
 type OOBNotesData struct {
-    Notes *TieredMulti `json:"notes"`
-    FederationIdPrefix *FederationIdPrefix `json:"federation_id_prefix"`
-    Default struct {
-        Variant uint64 `json:"variant"`
-        Bytes []uint8 `json:"bytes"`
-    } `json:"default"`
+	Notes              *TieredMulti        `json:"notes"`
+	FederationIdPrefix *FederationIdPrefix `json:"federation_id_prefix"`
+	Default            struct {
+		Variant uint64  `json:"variant"`
+		Bytes   []uint8 `json:"bytes"`
+	} `json:"default"`
 }
 
 type OOBNotes struct {
-    Zero []OOBNotesData `json:"zero"`
+	Zero []OOBNotesData `json:"zero"`
 }
 
 type SpendableNote struct {
-    Signature Signature `json:"signature"`
-    SpendKey KeyPair `json:"spend_key"`
+	Signature Signature `json:"signature"`
+	SpendKey  KeyPair   `json:"spend_key"`
 }
 
 type ReissueRequest struct {
-    Notes OOBNotes `json:"notes"`
+	Notes OOBNotes `json:"notes"`
 }
 
 type ReissueResponse struct {
-    AmountMsat uint64 `json:"amount_msat"`
+	AmountMsat uint64 `json:"amount_msat"`
 }
 
 type SpendRequest struct {
-    AmountMsat uint64 `json:"amount_msat"`
-    AllowOverpay bool `json:"allow_overpay"`
-    Timeout uint64 `json:"timeout"`
+	AmountMsat   uint64 `json:"amount_msat"`
+	AllowOverpay bool   `json:"allow_overpay"`
+	Timeout      uint64 `json:"timeout"`
 }
 
 type SpendResponse struct {
-    Operation string `json:"operation"`
-    Notes OOBNotes `json:"notes"`
+	Operation string   `json:"operation"`
+	Notes     OOBNotes `json:"notes"`
 }
 
 type ValidateRequest struct {
-    Notes OOBNotes `json:"notes"`
+	Notes OOBNotes `json:"notes"`
 }
 
 type ValidateResponse struct {
-    AmountMsat uint64 `json:"amount_msat"`
+	AmountMsat uint64 `json:"amount_msat"`
 }
 
 type SplitRequest struct {
-    Notes OOBNotes `json:"notes"`
+	Notes OOBNotes `json:"notes"`
 }
 
 type SplitResponse struct {
-    Notes map[uint64]OOBNotes `json:"notes"`
+	Notes map[uint64]OOBNotes `json:"notes"`
 }
 
 type CombineRequest struct {
-    Notes []OOBNotes `json:"notes"`
+	Notes []OOBNotes `json:"notes"`
 }
 
 type CombineResponse struct {
-    Notes OOBNotes `json:"notes"`
+	Notes OOBNotes `json:"notes"`
 }
 
 // Wallet Module
@@ -457,28 +452,28 @@ func (wallet *WalletModule) withdraw(request WithdrawRequest) (*WithdrawResponse
 }
 
 type DepositAddressRequest struct {
-    Timeout int `json:"timeout"`
+	Timeout int `json:"timeout"`
 }
 
 type DepositAddressResponse struct {
-    OperationID string `json:"operation_id"`
-    Address     string `json:"address"`
+	OperationID string `json:"operation_id"`
+	Address     string `json:"address"`
 }
 
 type AwaitDepositRequest struct {
-    OperationID string `json:"operation_id"`
+	OperationID string `json:"operation_id"`
 }
 
 type AwaitDepositResponse struct {
-    Status string `json:"status"`
+	Status string `json:"status"`
 }
 
 type WithdrawRequest struct {
-    Address    string `json:"address"`
-    AmountMsat string `json:"amount_msat"`
+	Address    string `json:"address"`
+	AmountMsat string `json:"amount_msat"`
 }
 
 type WithdrawResponse struct {
-    Txid    string `json:"txid"`
-    FeesSat int    `json:"fees_sat"`
+	Txid    string `json:"txid"`
+	FeesSat int    `json:"fees_sat"`
 }
