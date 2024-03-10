@@ -342,7 +342,8 @@ type Signature struct {
 }
 
 type G1Affine struct {
-	X, Y     Fp     `json:"x"`
+	X        Fp     `json:"x"`
+	Y        Fp     `json:"y"`
 	Infinity Choice `json:"infinity"`
 }
 
@@ -376,6 +377,7 @@ type SpendableNote struct {
 	SpendKey  KeyPair   `json:"spend_key"`
 }
 
+// @> `ReissueRequest` notes should be string? as fedimint-ts does uses string.
 type ReissueRequest struct {
 	Notes OOBNotes `json:"notes"`
 }
