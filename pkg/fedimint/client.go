@@ -132,7 +132,9 @@ func (fc *FedimintClient) Config() (*types.FedimintResponse, error) {
 	return &configResp, nil
 }
 
-// LN Module
+///////////////
+// LN Module //
+///////////////
 
 func (ln *LnModule) CreateInvoice(request LnInvoiceRequest) (*LnInvoiceResponse, error) {
 	fmt.Println("request: ", request)
@@ -255,7 +257,9 @@ type SwitchGatewayRequest struct {
 	gateway_id string `json:"gateway_id"`
 }
 
-// Mint Module
+/////////////////
+// Mint Module //
+/////////////////
 
 func (mint *MintModule) Reissue(request ReissueRequest) (*ReissueResponse, error) {
 	resp, err := mint.Client.post("/mint/reissue", request)
@@ -323,7 +327,10 @@ func (mint *MintModule) Combine(request CombineRequest) (*CombineResponse, error
 }
 
 type FederationIdPrefix struct {
-	Zero, One, Two, Three uint8 `json:"zero"`
+	Zero  uint8 `json:"zero"`
+	One   uint8 `json:"one"`
+	Two   uint8 `json:"two"`
+	Three uint8 `json:"three"`
 }
 
 type TieredMulti struct {
