@@ -24,7 +24,12 @@ func main() {
 		password = "password"
 	}
 
-	fedimintClient := fedimint.NewFedimintClient(baseUrl, password)
+	activeFederationId := os.Getenv("ACTIVE_FEDITIONAL_ID")
+	if activeFederationId == "" {
+		activeFederationId = "activeFederationId"
+	}
+
+	fedimintClient := fedimint.NewFedimintClient(baseUrl, password, activeFederationId)
 
 	info, err := fedimintClient.Info()
 	if err != nil {

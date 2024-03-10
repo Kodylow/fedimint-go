@@ -10,11 +10,12 @@ import (
 )
 
 type FedimintClient struct {
-	BaseURL  string
-	Password string
-	Ln       LnModule
-	Wallet   WalletModule
-	Mint     MintModule
+	BaseURL            string
+	Password           string
+	ActiveFederationId string
+	Ln                 LnModule
+	Wallet             WalletModule
+	Mint               MintModule
 }
 
 type LnModule struct {
@@ -29,10 +30,11 @@ type WalletModule struct {
 	Client *FedimintClient
 }
 
-func NewFedimintClient(baseURL, password string) *FedimintClient {
+func NewFedimintClient(baseURL, password string, activeFederationId string) *FedimintClient {
 	fc := &FedimintClient{
-		BaseURL:  baseURL + "/fedimint/v2",
-		Password: password,
+		BaseURL:            baseURL + "/fedimint/v2",
+		Password:           password,
+		ActiveFederationId: activeFederationId,
 	}
 	fc.Ln.Client = fc
 	fc.Wallet.Client = fc
