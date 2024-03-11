@@ -24,12 +24,12 @@ func main() {
 		password = "password"
 	}
 
-	activeFederationId := os.Getenv("ACTIVE_FEDITIONAL_ID")
-	if activeFederationId == "" {
-		activeFederationId = "activeFederationId"
+	federationId := os.Getenv("FEDERATION_ID")
+	if federationId == "" {
+		federationId = "activeFederationId"
 	}
 
-	fedimintClient := fedimint.NewFedimintClient(baseUrl, password, activeFederationId)
+	fedimintClient := fedimint.NewFedimintClient(baseUrl, password, federationId)
 
 	info, err := fedimintClient.Info()
 	if err != nil {
@@ -43,7 +43,7 @@ func main() {
 		Description: "test",
 	}
 
-	invoiceResponse, err := fedimintClient.Ln.CreateInvoice(invoiceRequest)
+	invoiceResponse, err := fedimintClient.Ln.CreateInvoice(invoiceRequest, &federationId)
 	if err != nil {
 		fmt.Println("Error creating invoice: ", err)
 		return
@@ -57,7 +57,7 @@ func main() {
 		OperationID: invoiceResponse.OperationID,
 	}
 
-	_, err = fedimintClient.Ln.AwaitInvoice(awaitInvoiceRequest)
+	_, err = fedimintClient.Ln.AwaitInvoice(awaitInvoiceRequest, &federationId)
 	if err != nil {
 		fmt.Println("Error awaiting invoice: ", err)
 		return

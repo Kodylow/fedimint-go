@@ -10,12 +10,12 @@ import (
 )
 
 type FedimintClient struct {
-	BaseURL            string
-	Password           string
-	ActiveFederationId string
-	Ln                 LnModule
-	Wallet             WalletModule
-	Mint               MintModule
+	BaseURL      string
+	Password     string
+	FederationId string
+	Ln           LnModule
+	Wallet       WalletModule
+	Mint         MintModule
 }
 
 type LnModule struct {
@@ -30,11 +30,11 @@ type WalletModule struct {
 	Client *FedimintClient
 }
 
-func NewFedimintClient(baseURL, password string, activeFederationId string) *FedimintClient {
+func NewFedimintClient(baseURL, password string, federationId string) *FedimintClient {
 	fc := &FedimintClient{
-		BaseURL:            baseURL + "/fedimint/v2",
-		Password:           password,
-		ActiveFederationId: activeFederationId,
+		BaseURL:      baseURL + "/fedimint/v2",
+		Password:     password,
+		FederationId: federationId,
 	}
 	fc.Ln.Client = fc
 	fc.Wallet.Client = fc
@@ -88,7 +88,7 @@ func (fc *FedimintClient) Info() (*types.InfoResponse, error) {
 	return &infoResp, nil
 }
 
-func (fc *FedimintClient) Backup(metadata *types.BackupRequest) error {
+func (fc *FedimintClient) Backup(metadata *types.BackupRequest, federationId *string) error {
 	_, err := fc.post("/admin/backup", metadata)
 	return err
 }
@@ -106,7 +106,7 @@ func (fc *FedimintClient) DiscoverVersion() (*types.FedimintResponse, error) {
 	return &versionResp, nil
 }
 
-func (fc *FedimintClient) ListOperations(request *types.ListOperationsRequest) (*types.OperationOutput, error) {
+func (fc *FedimintClient) ListOperations(request *types.ListOperationsRequest, federationId *string) (*types.OperationOutput, error) {
 	resp, err := fc.post("/admin/list-operations", request)
 	if err != nil {
 		return nil, err
@@ -136,7 +136,7 @@ func (fc *FedimintClient) Config() (*types.FedimintResponse, error) {
 // LN Module //
 ///////////////
 
-func (ln *LnModule) CreateInvoice(request LnInvoiceRequest) (*LnInvoiceResponse, error) {
+func (ln *LnModule) CreateInvoice(request LnInvoiceRequest, federationId *string) (*LnInvoiceResponse, error) {
 	fmt.Println("request: ", request)
 	resp, err := ln.Client.post("/ln/invoice", request)
 	if err != nil {
@@ -150,7 +150,7 @@ func (ln *LnModule) CreateInvoice(request LnInvoiceRequest) (*LnInvoiceResponse,
 	return &invoiceResp, nil
 }
 
-func (ln *LnModule) AwaitInvoice(request AwaitInvoiceRequest) (*types.InfoResponse, error) {
+func (ln *LnModule) AwaitInvoice(request AwaitInvoiceRequest, federationId *string) (*types.InfoResponse, error) {
 	resp, err := ln.Client.post("/ln/await-invoice", request)
 	if err != nil {
 		return nil, err
@@ -163,7 +163,7 @@ func (ln *LnModule) AwaitInvoice(request AwaitInvoiceRequest) (*types.InfoRespon
 	return &infoResp, nil
 }
 
-func (ln *LnModule) Pay(request LnPayRequest) (*LnPayResponse, error) {
+func (ln *LnModule) Pay(request LnPayRequest, federationId *string) (*LnPayResponse, error) {
 	resp, err := ln.Client.post("/ln/pay", request)
 	if err != nil {
 		return nil, err
@@ -176,7 +176,7 @@ func (ln *LnModule) Pay(request LnPayRequest) (*LnPayResponse, error) {
 	return &payResp, nil
 }
 
-func (ln *LnModule) AwaitPay(request AwaitLnPayRequest) (*LnPayResponse, error) {
+func (ln *LnModule) AwaitPay(request AwaitLnPayRequest, federationId *string) (*LnPayResponse, error) {
 	resp, err := ln.Client.post("/ln/await-pay", request)
 	if err != nil {
 		return nil, err
@@ -202,7 +202,7 @@ func (ln *LnModule) ListGateways() ([]Gateway, error) {
 	return gateways, nil
 }
 
-func (ln *LnModule) SwitchGateway(request SwitchGatewayRequest) (*Gateway, error) {
+func (ln *LnModule) SwitchGateway(request SwitchGatewayRequest, federationId *string) (*Gateway, error) {
 	resp, err := ln.Client.post("/ln/switch-gateway", request)
 	if err != nil {
 		return nil, err
@@ -261,7 +261,7 @@ type SwitchGatewayRequest struct {
 // Mint Module //
 /////////////////
 
-func (mint *MintModule) Reissue(request ReissueRequest) (*ReissueResponse, error) {
+func (mint *MintModule) Reissue(request ReissueRequest, federationId *string) (*ReissueResponse, error) {
 	resp, err := mint.Client.post("/mint/reissue", request)
 	if err != nil {
 		return nil, err
@@ -274,7 +274,7 @@ func (mint *MintModule) Reissue(request ReissueRequest) (*ReissueResponse, error
 	return &reissueResp, nil
 }
 
-func (mint *MintModule) Spend(request SpendRequest) (*SpendResponse, error) {
+func (mint *MintModule) Spend(request SpendRequest, federationId *string) (*SpendResponse, error) {
 	resp, err := mint.Client.post("/mint/spend", request)
 	if err != nil {
 		return nil, err
@@ -287,7 +287,7 @@ func (mint *MintModule) Spend(request SpendRequest) (*SpendResponse, error) {
 	return &spendResp, nil
 }
 
-func (mint *MintModule) Validate(request ValidateRequest) (*ValidateResponse, error) {
+func (mint *MintModule) Validate(request ValidateRequest, federationId *string) (*ValidateResponse, error) {
 	resp, err := mint.Client.post("/mint/validate", request)
 	if err != nil {
 		return nil, err
@@ -327,10 +327,7 @@ func (mint *MintModule) Combine(request CombineRequest) (*CombineResponse, error
 }
 
 type FederationIdPrefix struct {
-	Zero  uint8 `json:"zero"`
-	One   uint8 `json:"one"`
-	Two   uint8 `json:"two"`
-	Three uint8 `json:"three"`
+	Value [4]byte `json:"value"`
 }
 
 type TieredMulti struct {
@@ -423,7 +420,7 @@ type CombineResponse struct {
 
 // Wallet Module
 
-func (wallet *WalletModule) createDepositAddress(request DepositAddressRequest) (*DepositAddressResponse, error) {
+func (wallet *WalletModule) createDepositAddress(request DepositAddressRequest, federationId *string) (*DepositAddressResponse, error) {
 	resp, err := wallet.Client.post("/wallet/deposit-address", request)
 	if err != nil {
 		return nil, err
@@ -436,7 +433,7 @@ func (wallet *WalletModule) createDepositAddress(request DepositAddressRequest) 
 	return &depositAddressResp, nil
 }
 
-func (wallet *WalletModule) awaitDeposit(request AwaitDepositRequest) (*AwaitDepositResponse, error) {
+func (wallet *WalletModule) awaitDeposit(request AwaitDepositRequest, federationId *string) (*AwaitDepositResponse, error) {
 	resp, err := wallet.Client.post("/wallet/await-deposit", request)
 	if err != nil {
 		return nil, err
@@ -449,7 +446,7 @@ func (wallet *WalletModule) awaitDeposit(request AwaitDepositRequest) (*AwaitDep
 	return &depositResp, nil
 }
 
-func (wallet *WalletModule) withdraw(request WithdrawRequest) (*WithdrawResponse, error) {
+func (wallet *WalletModule) withdraw(request WithdrawRequest, federationId *string) (*WithdrawResponse, error) {
 	resp, err := wallet.Client.post("/wallet/withdraw", request)
 	if err != nil {
 		return nil, err
