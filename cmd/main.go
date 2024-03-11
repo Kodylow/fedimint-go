@@ -26,7 +26,7 @@ func main() {
 
 	federationId := os.Getenv("FEDERATION_ID")
 	if federationId == "" {
-		federationId = "activeFederationId"
+		federationId = "defaultId"
 	}
 
 	fedimintClient := fedimint.NewFedimintClient(baseUrl, password, federationId)
