@@ -101,28 +101,28 @@ type AwaitInvoiceRequest struct {
 }
 
 type LnPayRequest struct {
-	payment_info         string  `json:"payment_info"`
-	amount_msat          *int    `json:"amount_msat"`
-	finish_in_background bool    `json:"finish_in_background"`
-	lnurl_comment        *string `json:"lnurl_comment"`
+	Payment_info         string  `json:"payment_info"`
+	Amount_msat          *int    `json:"amount_msat"`
+	Finish_in_background bool    `json:"finish_in_background"`
+	Lnurl_comment        *string `json:"lnurl_comment"`
 }
 
 type LnPayResponse struct {
-	operation_id string `json:"operation_id"`
-	payment_type string `json:"payment_type"`
-	contract_id  string `json:"contract_id"`
-	fee          int    `json:"fee"`
+	Pperation_id string `json:"operation_id"`
+	Payment_type string `json:"payment_type"`
+	Contract_id  string `json:"contract_id"`
+	Fee          int    `json:"fee"`
 }
 
 type AwaitLnPayRequest struct {
-	operation_id string `json:"operation_id"`
+	Operation_id string `json:"operation_id"`
 }
 
 type Gateway struct {
-	node_pub_key string `json:"node_pub_key"`
-	active       bool   `json:"active"`
+	Node_pub_key string `json:"node_pub_key"`
+	Active       bool   `json:"active"`
 }
 
 type SwitchGatewayRequest struct {
-	gateway_id string `json:"gateway_id"`
+	Gateway_id string `json:"gateway_id"`
 }
