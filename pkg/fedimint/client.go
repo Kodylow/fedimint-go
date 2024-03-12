@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fedimint-go-client/pkg/fedimint/types"
+	"fedimint-go-client/pkg/fedimint/types/modules"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -136,12 +137,12 @@ func (fc *FedimintClient) Config() (*types.FedimintResponse, error) {
 // Wallet //
 ////////////
 
-func (wallet *WalletModule) createDepositAddress(request DepositAddressRequest, federationId *string) (*DepositAddressResponse, error) {
+func (wallet *WalletModule) createDepositAddress(request modules.DepositAddressRequest, federationId *string) (*modules.DepositAddressResponse, error) {
 	resp, err := wallet.Client.post("/wallet/deposit-address", request)
 	if err != nil {
 		return nil, err
 	}
-	var depositAddressResp DepositAddressResponse
+	var depositAddressResp modules.DepositAddressResponse
 	err = json.Unmarshal(resp, &depositAddressResp)
 	if err != nil {
 		return nil, err
@@ -149,12 +150,12 @@ func (wallet *WalletModule) createDepositAddress(request DepositAddressRequest, 
 	return &depositAddressResp, nil
 }
 
-func (wallet *WalletModule) awaitDeposit(request AwaitDepositRequest, federationId *string) (*AwaitDepositResponse, error) {
+func (wallet *WalletModule) awaitDeposit(request modules.AwaitDepositRequest, federationId *string) (*modules.AwaitDepositResponse, error) {
 	resp, err := wallet.Client.post("/wallet/await-deposit", request)
 	if err != nil {
 		return nil, err
 	}
-	var depositResp AwaitDepositResponse
+	var depositResp modules.AwaitDepositResponse
 	err = json.Unmarshal(resp, &depositResp)
 	if err != nil {
 		return nil, err
@@ -162,12 +163,12 @@ func (wallet *WalletModule) awaitDeposit(request AwaitDepositRequest, federation
 	return &depositResp, nil
 }
 
-func (wallet *WalletModule) withdraw(request WithdrawRequest, federationId *string) (*WithdrawResponse, error) {
+func (wallet *WalletModule) withdraw(request modules.WithdrawRequest, federationId *string) (*modules.WithdrawResponse, error) {
 	resp, err := wallet.Client.post("/wallet/withdraw", request)
 	if err != nil {
 		return nil, err
 	}
-	var withdrawResp WithdrawResponse
+	var withdrawResp modules.WithdrawResponse
 	err = json.Unmarshal(resp, &withdrawResp)
 	if err != nil {
 		return nil, err
@@ -179,12 +180,12 @@ func (wallet *WalletModule) withdraw(request WithdrawRequest, federationId *stri
 // mint //
 //////////
 
-func (mint *MintModule) Reissue(request ReissueRequest, federationId *string) (*ReissueResponse, error) {
+func (mint *MintModule) Reissue(request modules.ReissueRequest, federationId *string) (*modules.ReissueResponse, error) {
 	resp, err := mint.Client.post("/mint/reissue", request)
 	if err != nil {
 		return nil, err
 	}
-	var reissueResp ReissueResponse
+	var reissueResp modules.ReissueResponse
 	err = json.Unmarshal(resp, &reissueResp)
 	if err != nil {
 		return nil, err
@@ -192,12 +193,12 @@ func (mint *MintModule) Reissue(request ReissueRequest, federationId *string) (*
 	return &reissueResp, nil
 }
 
-func (mint *MintModule) Spend(request SpendRequest, federationId *string) (*SpendResponse, error) {
+func (mint *MintModule) Spend(request modules.SpendRequest, federationId *string) (*modules.SpendResponse, error) {
 	resp, err := mint.Client.post("/mint/spend", request)
 	if err != nil {
 		return nil, err
 	}
-	var spendResp SpendResponse
+	var spendResp modules.SpendResponse
 	err = json.Unmarshal(resp, &spendResp)
 	if err != nil {
 		return nil, err
@@ -205,12 +206,12 @@ func (mint *MintModule) Spend(request SpendRequest, federationId *string) (*Spen
 	return &spendResp, nil
 }
 
-func (mint *MintModule) Validate(request ValidateRequest, federationId *string) (*ValidateResponse, error) {
+func (mint *MintModule) Validate(request modules.ValidateRequest, federationId *string) (*modules.ValidateResponse, error) {
 	resp, err := mint.Client.post("/mint/validate", request)
 	if err != nil {
 		return nil, err
 	}
-	var validateResp ValidateResponse
+	var validateResp modules.ValidateResponse
 	err = json.Unmarshal(resp, &validateResp)
 	if err != nil {
 		return nil, err
@@ -218,12 +219,12 @@ func (mint *MintModule) Validate(request ValidateRequest, federationId *string) 
 	return &validateResp, nil
 }
 
-func (mint *MintModule) Split(request SplitRequest) (*SplitResponse, error) {
+func (mint *MintModule) Split(request modules.SplitRequest) (*modules.SplitResponse, error) {
 	resp, err := mint.Client.post("/mint/split", request)
 	if err != nil {
 		return nil, err
 	}
-	var splitResp SplitResponse
+	var splitResp modules.SplitResponse
 	err = json.Unmarshal(resp, &splitResp)
 	if err != nil {
 		return nil, err
@@ -231,12 +232,12 @@ func (mint *MintModule) Split(request SplitRequest) (*SplitResponse, error) {
 	return &splitResp, nil
 }
 
-func (mint *MintModule) Combine(request CombineRequest) (*CombineResponse, error) {
+func (mint *MintModule) Combine(request modules.CombineRequest) (*modules.CombineResponse, error) {
 	resp, err := mint.Client.post("/mint/combine", request)
 	if err != nil {
 		return nil, err
 	}
-	var combineResp CombineResponse
+	var combineResp modules.CombineResponse
 	err = json.Unmarshal(resp, &combineResp)
 	if err != nil {
 		return nil, err
@@ -248,13 +249,13 @@ func (mint *MintModule) Combine(request CombineRequest) (*CombineResponse, error
 // ln //
 ////////
 
-func (ln *LnModule) CreateInvoice(request LnInvoiceRequest, federationId *string) (*LnInvoiceResponse, error) {
+func (ln *LnModule) CreateInvoice(request modules.LnInvoiceRequest, federationId *string) (*modules.LnInvoiceResponse, error) {
 	fmt.Println("request: ", request)
 	resp, err := ln.Client.post("/ln/invoice", request)
 	if err != nil {
 		return nil, err
 	}
-	var invoiceResp LnInvoiceResponse
+	var invoiceResp modules.LnInvoiceResponse
 	err = json.Unmarshal(resp, &invoiceResp)
 	if err != nil {
 		return nil, err
@@ -262,7 +263,7 @@ func (ln *LnModule) CreateInvoice(request LnInvoiceRequest, federationId *string
 	return &invoiceResp, nil
 }
 
-func (ln *LnModule) AwaitInvoice(request AwaitInvoiceRequest, federationId *string) (*types.InfoResponse, error) {
+func (ln *LnModule) AwaitInvoice(request modules.AwaitInvoiceRequest, federationId *string) (*types.InfoResponse, error) {
 	resp, err := ln.Client.post("/ln/await-invoice", request)
 	if err != nil {
 		return nil, err
@@ -275,12 +276,12 @@ func (ln *LnModule) AwaitInvoice(request AwaitInvoiceRequest, federationId *stri
 	return &infoResp, nil
 }
 
-func (ln *LnModule) Pay(request LnPayRequest, federationId *string) (*LnPayResponse, error) {
+func (ln *LnModule) Pay(request modules.LnPayRequest, federationId *string) (*modules.LnPayResponse, error) {
 	resp, err := ln.Client.post("/ln/pay", request)
 	if err != nil {
 		return nil, err
 	}
-	var payResp LnPayResponse
+	var payResp modules.LnPayResponse
 	err = json.Unmarshal(resp, &payResp)
 	if err != nil {
 		return nil, err
@@ -288,12 +289,12 @@ func (ln *LnModule) Pay(request LnPayRequest, federationId *string) (*LnPayRespo
 	return &payResp, nil
 }
 
-func (ln *LnModule) AwaitPay(request AwaitLnPayRequest, federationId *string) (*LnPayResponse, error) {
+func (ln *LnModule) AwaitPay(request modules.AwaitLnPayRequest, federationId *string) (*modules.LnPayResponse, error) {
 	resp, err := ln.Client.post("/ln/await-pay", request)
 	if err != nil {
 		return nil, err
 	}
-	var payResp LnPayResponse
+	var payResp modules.LnPayResponse
 	err = json.Unmarshal(resp, &payResp)
 	if err != nil {
 		return nil, err
@@ -301,12 +302,12 @@ func (ln *LnModule) AwaitPay(request AwaitLnPayRequest, federationId *string) (*
 	return &payResp, nil
 }
 
-func (ln *LnModule) ListGateways() ([]Gateway, error) {
+func (ln *LnModule) ListGateways() ([]modules.Gateway, error) {
 	resp, err := ln.Client.get("/ln/list-gateways")
 	if err != nil {
 		return nil, err
 	}
-	var gateways []Gateway
+	var gateways []modules.Gateway
 	err = json.Unmarshal(resp, &gateways)
 	if err != nil {
 		return nil, err
@@ -314,12 +315,12 @@ func (ln *LnModule) ListGateways() ([]Gateway, error) {
 	return gateways, nil
 }
 
-func (ln *LnModule) SwitchGateway(request SwitchGatewayRequest, federationId *string) (*Gateway, error) {
+func (ln *LnModule) SwitchGateway(request modules.SwitchGatewayRequest, federationId *string) (*modules.Gateway, error) {
 	resp, err := ln.Client.post("/ln/switch-gateway", request)
 	if err != nil {
 		return nil, err
 	}
-	var gateway Gateway
+	var gateway modules.Gateway
 	err = json.Unmarshal(resp, &gateway)
 	if err != nil {
 		return nil, err
