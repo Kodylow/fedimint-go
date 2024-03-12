@@ -123,6 +123,9 @@ type Gateway struct {
 	Active       bool   `json:"active"`
 }
 
+// string::> FederationId
+type ListGatewaysResponse map[string][]Gateway
+
 type SwitchGatewayRequest struct {
 	Gateway_id string `json:"gateway_id"`
 }
