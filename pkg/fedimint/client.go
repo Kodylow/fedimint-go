@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fedimint-go-client/pkg/fedimint/types"
+	"fedimint-go-client/pkg/fedimint/types/modules"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -130,4 +131,199 @@ func (fc *FedimintClient) Config() (*types.FedimintResponse, error) {
 		return nil, err
 	}
 	return &configResp, nil
+}
+
+////////////
+// Wallet //
+////////////
+
+func (wallet *WalletModule) createDepositAddress(request modules.DepositAddressRequest, federationId *string) (*modules.DepositAddressResponse, error) {
+	resp, err := wallet.Client.post("/wallet/deposit-address", request)
+	if err != nil {
+		return nil, err
+	}
+	var depositAddressResp modules.DepositAddressResponse
+	err = json.Unmarshal(resp, &depositAddressResp)
+	if err != nil {
+		return nil, err
+	}
+	return &depositAddressResp, nil
+}
+
+func (wallet *WalletModule) awaitDeposit(request modules.AwaitDepositRequest, federationId *string) (*modules.AwaitDepositResponse, error) {
+	resp, err := wallet.Client.post("/wallet/await-deposit", request)
+	if err != nil {
+		return nil, err
+	}
+	var depositResp modules.AwaitDepositResponse
+	err = json.Unmarshal(resp, &depositResp)
+	if err != nil {
+		return nil, err
+	}
+	return &depositResp, nil
+}
+
+func (wallet *WalletModule) withdraw(request modules.WithdrawRequest, federationId *string) (*modules.WithdrawResponse, error) {
+	resp, err := wallet.Client.post("/wallet/withdraw", request)
+	if err != nil {
+		return nil, err
+	}
+	var withdrawResp modules.WithdrawResponse
+	err = json.Unmarshal(resp, &withdrawResp)
+	if err != nil {
+		return nil, err
+	}
+	return &withdrawResp, nil
+}
+
+//////////
+// mint //
+//////////
+
+func (mint *MintModule) Reissue(request modules.ReissueRequest, federationId *string) (*modules.ReissueResponse, error) {
+	resp, err := mint.Client.post("/mint/reissue", request)
+	if err != nil {
+		return nil, err
+	}
+	var reissueResp modules.ReissueResponse
+	err = json.Unmarshal(resp, &reissueResp)
+	if err != nil {
+		return nil, err
+	}
+	return &reissueResp, nil
+}
+
+func (mint *MintModule) Spend(request modules.SpendRequest, federationId *string) (*modules.SpendResponse, error) {
+	resp, err := mint.Client.post("/mint/spend", request)
+	if err != nil {
+		return nil, err
+	}
+	var spendResp modules.SpendResponse
+	err = json.Unmarshal(resp, &spendResp)
+	if err != nil {
+		return nil, err
+	}
+	return &spendResp, nil
+}
+
+func (mint *MintModule) Validate(request modules.ValidateRequest, federationId *string) (*modules.ValidateResponse, error) {
+	resp, err := mint.Client.post("/mint/validate", request)
+	if err != nil {
+		return nil, err
+	}
+	var validateResp modules.ValidateResponse
+	err = json.Unmarshal(resp, &validateResp)
+	if err != nil {
+		return nil, err
+	}
+	return &validateResp, nil
+}
+
+func (mint *MintModule) Split(request modules.SplitRequest) (*modules.SplitResponse, error) {
+	resp, err := mint.Client.post("/mint/split", request)
+	if err != nil {
+		return nil, err
+	}
+	var splitResp modules.SplitResponse
+	err = json.Unmarshal(resp, &splitResp)
+	if err != nil {
+		return nil, err
+	}
+	return &splitResp, nil
+}
+
+func (mint *MintModule) Combine(request modules.CombineRequest) (*modules.CombineResponse, error) {
+	resp, err := mint.Client.post("/mint/combine", request)
+	if err != nil {
+		return nil, err
+	}
+	var combineResp modules.CombineResponse
+	err = json.Unmarshal(resp, &combineResp)
+	if err != nil {
+		return nil, err
+	}
+	return &combineResp, nil
+}
+
+////////
+// ln //
+////////
+
+func (ln *LnModule) CreateInvoice(request modules.LnInvoiceRequest, federationId *string) (*modules.LnInvoiceResponse, error) {
+	fmt.Println("request: ", request)
+	resp, err := ln.Client.post("/ln/invoice", request)
+	if err != nil {
+		return nil, err
+	}
+	var invoiceResp modules.LnInvoiceResponse
+	err = json.Unmarshal(resp, &invoiceResp)
+	if err != nil {
+		return nil, err
+	}
+	return &invoiceResp, nil
+}
+
+func (ln *LnModule) AwaitInvoice(request modules.AwaitInvoiceRequest, federationId *string) (*types.InfoResponse, error) {
+	resp, err := ln.Client.post("/ln/await-invoice", request)
+	if err != nil {
+		return nil, err
+	}
+	var infoResp types.InfoResponse
+	err = json.Unmarshal(resp, &infoResp)
+	if err != nil {
+		return nil, err
+	}
+	return &infoResp, nil
+}
+
+func (ln *LnModule) Pay(request modules.LnPayRequest, federationId *string) (*modules.LnPayResponse, error) {
+	resp, err := ln.Client.post("/ln/pay", request)
+	if err != nil {
+		return nil, err
+	}
+	var payResp modules.LnPayResponse
+	err = json.Unmarshal(resp, &payResp)
+	if err != nil {
+		return nil, err
+	}
+	return &payResp, nil
+}
+
+func (ln *LnModule) AwaitPay(request modules.AwaitLnPayRequest, federationId *string) (*modules.LnPayResponse, error) {
+	resp, err := ln.Client.post("/ln/await-pay", request)
+	if err != nil {
+		return nil, err
+	}
+	var payResp modules.LnPayResponse
+	err = json.Unmarshal(resp, &payResp)
+	if err != nil {
+		return nil, err
+	}
+	return &payResp, nil
+}
+
+func (ln *LnModule) ListGateways() ([]modules.Gateway, error) {
+	resp, err := ln.Client.get("/ln/list-gateways")
+	if err != nil {
+		return nil, err
+	}
+	var gateways []modules.Gateway
+	err = json.Unmarshal(resp, &gateways)
+	if err != nil {
+		return nil, err
+	}
+	return gateways, nil
+}
+
+func (ln *LnModule) SwitchGateway(request modules.SwitchGatewayRequest, federationId *string) (*modules.Gateway, error) {
+	resp, err := ln.Client.post("/ln/switch-gateway", request)
+	if err != nil {
+		return nil, err
+	}
+	var gateway modules.Gateway
+	err = json.Unmarshal(resp, &gateway)
+	if err != nil {
+		return nil, err
+	}
+	return &gateway, nil
 }

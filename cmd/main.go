@@ -2,6 +2,7 @@ package main
 
 import (
 	"fedimint-go-client/pkg/fedimint"
+	"fedimint-go-client/pkg/fedimint/types/modules"
 	"fmt"
 	"os"
 
@@ -38,7 +39,7 @@ func main() {
 	}
 	fmt.Println("Current Total Msats Ecash: ", info.TotalAmountMsat)
 
-	invoiceRequest := fedimint.LnInvoiceRequest{
+	invoiceRequest := modules.LnInvoiceRequest{
 		AmountMsat:  10000,
 		Description: "test",
 	}
@@ -53,7 +54,7 @@ func main() {
 
 	fmt.Println("Waiting for payment...")
 
-	awaitInvoiceRequest := fedimint.AwaitInvoiceRequest{
+	awaitInvoiceRequest := modules.AwaitInvoiceRequest{
 		OperationID: invoiceResponse.OperationID,
 	}
 
