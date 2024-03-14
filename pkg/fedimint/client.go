@@ -155,7 +155,7 @@ func (fc *FedimintClient) Config() (*types.FedimintResponse, error) {
 
 func (fc *FedimintClient) Join(inviteCode string, setDefault bool) (types.FederationIdsResponse, error) {
 	var response types.FederationIdsResponse
-	responseBody, err := fc.post("/admin/backup", map[string]interface{}{
+	responseBody, err := fc.post("/admin/join", map[string]interface{}{
 		"inviteCode": inviteCode,
 		"setDefault": setDefault,
 	})
