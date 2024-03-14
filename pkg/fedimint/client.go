@@ -317,7 +317,7 @@ func (ln *LnModule) CreateInvoice(request modules.LnInvoiceRequest, federationId
 }
 
 func (ln *LnModule) AwaitInvoice(request modules.AwaitInvoiceRequest, federationId *string) (*types.InfoResponse, error) {
-	resp, err := ln.Client.post("/ln/await-invoice", request)
+	resp, err := ln.Client.postWithId("/ln/await-invoice", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -330,7 +330,7 @@ func (ln *LnModule) AwaitInvoice(request modules.AwaitInvoiceRequest, federation
 }
 
 func (ln *LnModule) Pay(request modules.LnPayRequest, federationId *string) (*modules.LnPayResponse, error) {
-	resp, err := ln.Client.post("/ln/pay", request)
+	resp, err := ln.Client.postWithId("/ln/pay", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -343,7 +343,7 @@ func (ln *LnModule) Pay(request modules.LnPayRequest, federationId *string) (*mo
 }
 
 func (ln *LnModule) AwaitPay(request modules.AwaitLnPayRequest, federationId *string) (*modules.LnPayResponse, error) {
-	resp, err := ln.Client.post("/ln/await-pay", request)
+	resp, err := ln.Client.postWithId("/ln/await-pay", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -369,7 +369,7 @@ func (ln *LnModule) ListGateways() ([]modules.Gateway, error) {
 }
 
 func (ln *LnModule) SwitchGateway(request modules.SwitchGatewayRequest, federationId *string) (*modules.Gateway, error) {
-	resp, err := ln.Client.post("/ln/switch-gateway", request)
+	resp, err := ln.Client.postWithId("/ln/switch-gateway", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
