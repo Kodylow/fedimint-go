@@ -234,7 +234,7 @@ func (wallet *WalletModule) withdraw(request modules.WithdrawRequest, federation
 //////////
 
 func (mint *MintModule) Reissue(request modules.ReissueRequest, federationId *string) (*modules.ReissueResponse, error) {
-	resp, err := mint.Client.post("/mint/reissue", request)
+	resp, err := mint.Client.postWithId("/mint/reissue", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -247,7 +247,7 @@ func (mint *MintModule) Reissue(request modules.ReissueRequest, federationId *st
 }
 
 func (mint *MintModule) Spend(request modules.SpendRequest, federationId *string) (*modules.SpendResponse, error) {
-	resp, err := mint.Client.post("/mint/spend", request)
+	resp, err := mint.Client.postWithId("/mint/spend", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -260,7 +260,7 @@ func (mint *MintModule) Spend(request modules.SpendRequest, federationId *string
 }
 
 func (mint *MintModule) Validate(request modules.ValidateRequest, federationId *string) (*modules.ValidateResponse, error) {
-	resp, err := mint.Client.post("/mint/validate", request)
+	resp, err := mint.Client.postWithId("/mint/validate", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -304,7 +304,7 @@ func (mint *MintModule) Combine(request modules.CombineRequest) (*modules.Combin
 
 func (ln *LnModule) CreateInvoice(request modules.LnInvoiceRequest, federationId *string) (*modules.LnInvoiceResponse, error) {
 	fmt.Println("request: ", request)
-	resp, err := ln.Client.post("/ln/invoice", request)
+	resp, err := ln.Client.postWithId("/ln/invoice", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
