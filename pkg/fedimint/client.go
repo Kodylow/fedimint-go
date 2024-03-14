@@ -299,7 +299,7 @@ func (mint *MintModule) Combine(request modules.CombineRequest) (*modules.Combin
 }
 
 ////////
-// ln //
+// Ln //
 ////////
 
 func (ln *LnModule) CreateInvoice(request modules.LnInvoiceRequest, federationId *string) (*modules.LnInvoiceResponse, error) {
