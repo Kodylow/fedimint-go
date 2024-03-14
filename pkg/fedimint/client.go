@@ -191,7 +191,7 @@ func (fc *FedimintClient) FederationIds() (types.FederationIdsResponse, error) {
 ////////////
 
 func (wallet *WalletModule) createDepositAddress(request modules.DepositAddressRequest, federationId *string) (*modules.DepositAddressResponse, error) {
-	resp, err := wallet.Client.post("/wallet/deposit-address", request)
+	resp, err := wallet.Client.postWithId("/wallet/deposit-address", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +204,7 @@ func (wallet *WalletModule) createDepositAddress(request modules.DepositAddressR
 }
 
 func (wallet *WalletModule) awaitDeposit(request modules.AwaitDepositRequest, federationId *string) (*modules.AwaitDepositResponse, error) {
-	resp, err := wallet.Client.post("/wallet/await-deposit", request)
+	resp, err := wallet.Client.postWithId("/wallet/await-deposit", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -217,7 +217,7 @@ func (wallet *WalletModule) awaitDeposit(request modules.AwaitDepositRequest, fe
 }
 
 func (wallet *WalletModule) withdraw(request modules.WithdrawRequest, federationId *string) (*modules.WithdrawResponse, error) {
-	resp, err := wallet.Client.post("/wallet/withdraw", request)
+	resp, err := wallet.Client.postWithId("/wallet/withdraw", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
