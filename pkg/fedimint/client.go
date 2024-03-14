@@ -63,6 +63,14 @@ func (fc *FedimintClient) fetchWithAuth(endpoint string, method string, body []b
 	return ioutil.ReadAll(resp.Body)
 }
 
+func (fc *FedimintClient) getActiveFederationId() string {
+	return fc.FederationId
+}
+
+func (fc *FedimintClient) setActiveFederationId(federationId string) {
+	fc.FederationId = federationId
+}
+
 func (fc *FedimintClient) get(endpoint string) ([]byte, error) {
 	return fc.fetchWithAuth(endpoint, "GET", nil)
 }
@@ -74,6 +82,18 @@ func (fc *FedimintClient) post(endpoint string, body interface{}) ([]byte, error
 		return nil, err
 	}
 	return fc.fetchWithAuth(endpoint, "POST", jsonBody)
+}
+
+func (fc *FedimintClient) postWithId(endpoint string, body interface{}, federationId string) ([]byte, error) {
+	effectiveFederationId := federationId
+	if effectiveFederationId == "" {
+		effectiveFederationId = fc.FederationId
+	}
+
+	return fc.post(endpoint, map[string]interface{}{
+		"body":         body,
+		"federationId": effectiveFederationId,
+	})
 }
 
 func (fc *FedimintClient) Info() (*types.InfoResponse, error) {
@@ -89,8 +109,8 @@ func (fc *FedimintClient) Info() (*types.InfoResponse, error) {
 	return &infoResp, nil
 }
 
-func (fc *FedimintClient) Backup(metadata *types.BackupRequest, federationId *string) error {
-	_, err := fc.post("/admin/backup", metadata)
+func (fc *FedimintClient) Backup(metadata *types.BackupRequest, federationId string) error {
+	_, err := fc.postWithId("/admin/backup", metadata, federationId)
 	return err
 }
 
@@ -131,6 +151,39 @@ func (fc *FedimintClient) Config() (*types.FedimintResponse, error) {
 		return nil, err
 	}
 	return &configResp, nil
+}
+
+func (fc *FedimintClient) Join(inviteCode string, setDefault bool) (types.FederationIdsResponse, error) {
+	var response types.FederationIdsResponse
+	responseBody, err := fc.post("/admin/backup", map[string]interface{}{
+		"inviteCode": inviteCode,
+		"setDefault": setDefault,
+	})
+
+	if err != nil {
+		return response, err
+	}
+
+	err = json.Unmarshal(responseBody, &response)
+	if err != nil {
+		return response, err
+	}
+	return response, nil
+}
+
+func (fc *FedimintClient) FederationIds() (types.FederationIdsResponse, error) {
+	var response types.FederationIdsResponse
+	responseBody, err := fc.get("/admin/federation-ids")
+
+	if err != nil {
+		return response, err
+	}
+
+	err = json.Unmarshal(responseBody, &response)
+	if err != nil {
+		return response, err
+	}
+	return response, nil
 }
 
 ////////////
