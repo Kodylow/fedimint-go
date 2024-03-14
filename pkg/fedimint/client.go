@@ -63,6 +63,14 @@ func (fc *FedimintClient) fetchWithAuth(endpoint string, method string, body []b
 	return ioutil.ReadAll(resp.Body)
 }
 
+func (fc *FedimintClient) getActiveFederationId() string {
+	return fc.FederationId
+}
+
+func (fc *FedimintClient) setActiveFederationId(federationId string) {
+	fc.FederationId = federationId
+}
+
 func (fc *FedimintClient) get(endpoint string) ([]byte, error) {
 	return fc.fetchWithAuth(endpoint, "GET", nil)
 }
@@ -74,6 +82,18 @@ func (fc *FedimintClient) post(endpoint string, body interface{}) ([]byte, error
 		return nil, err
 	}
 	return fc.fetchWithAuth(endpoint, "POST", jsonBody)
+}
+
+func (fc *FedimintClient) postWithId(endpoint string, body interface{}, federationId string) ([]byte, error) {
+	effectiveFederationId := federationId
+	if effectiveFederationId == "" {
+		effectiveFederationId = fc.FederationId
+	}
+
+	return fc.post(endpoint, map[string]interface{}{
+		"body":         body,
+		"federationId": effectiveFederationId,
+	})
 }
 
 func (fc *FedimintClient) Info() (*types.InfoResponse, error) {
@@ -89,8 +109,8 @@ func (fc *FedimintClient) Info() (*types.InfoResponse, error) {
 	return &infoResp, nil
 }
 
-func (fc *FedimintClient) Backup(metadata *types.BackupRequest, federationId *string) error {
-	_, err := fc.post("/admin/backup", metadata)
+func (fc *FedimintClient) Backup(metadata *types.BackupRequest, federationId string) error {
+	_, err := fc.postWithId("/admin/backup", metadata, federationId)
 	return err
 }
 
@@ -133,12 +153,45 @@ func (fc *FedimintClient) Config() (*types.FedimintResponse, error) {
 	return &configResp, nil
 }
 
+func (fc *FedimintClient) Join(inviteCode string, setDefault bool) (types.FederationIdsResponse, error) {
+	var response types.FederationIdsResponse
+	responseBody, err := fc.post("/admin/join", map[string]interface{}{
+		"inviteCode": inviteCode,
+		"setDefault": setDefault,
+	})
+
+	if err != nil {
+		return response, err
+	}
+
+	err = json.Unmarshal(responseBody, &response)
+	if err != nil {
+		return response, err
+	}
+	return response, nil
+}
+
+func (fc *FedimintClient) FederationIds() (types.FederationIdsResponse, error) {
+	var response types.FederationIdsResponse
+	responseBody, err := fc.get("/admin/federation-ids")
+
+	if err != nil {
+		return response, err
+	}
+
+	err = json.Unmarshal(responseBody, &response)
+	if err != nil {
+		return response, err
+	}
+	return response, nil
+}
+
 ////////////
 // Wallet //
 ////////////
 
 func (wallet *WalletModule) createDepositAddress(request modules.DepositAddressRequest, federationId *string) (*modules.DepositAddressResponse, error) {
-	resp, err := wallet.Client.post("/wallet/deposit-address", request)
+	resp, err := wallet.Client.postWithId("/wallet/deposit-address", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -151,7 +204,7 @@ func (wallet *WalletModule) createDepositAddress(request modules.DepositAddressR
 }
 
 func (wallet *WalletModule) awaitDeposit(request modules.AwaitDepositRequest, federationId *string) (*modules.AwaitDepositResponse, error) {
-	resp, err := wallet.Client.post("/wallet/await-deposit", request)
+	resp, err := wallet.Client.postWithId("/wallet/await-deposit", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +217,7 @@ func (wallet *WalletModule) awaitDeposit(request modules.AwaitDepositRequest, fe
 }
 
 func (wallet *WalletModule) withdraw(request modules.WithdrawRequest, federationId *string) (*modules.WithdrawResponse, error) {
-	resp, err := wallet.Client.post("/wallet/withdraw", request)
+	resp, err := wallet.Client.postWithId("/wallet/withdraw", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -181,7 +234,7 @@ func (wallet *WalletModule) withdraw(request modules.WithdrawRequest, federation
 //////////
 
 func (mint *MintModule) Reissue(request modules.ReissueRequest, federationId *string) (*modules.ReissueResponse, error) {
-	resp, err := mint.Client.post("/mint/reissue", request)
+	resp, err := mint.Client.postWithId("/mint/reissue", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +247,7 @@ func (mint *MintModule) Reissue(request modules.ReissueRequest, federationId *st
 }
 
 func (mint *MintModule) Spend(request modules.SpendRequest, federationId *string) (*modules.SpendResponse, error) {
-	resp, err := mint.Client.post("/mint/spend", request)
+	resp, err := mint.Client.postWithId("/mint/spend", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +260,7 @@ func (mint *MintModule) Spend(request modules.SpendRequest, federationId *string
 }
 
 func (mint *MintModule) Validate(request modules.ValidateRequest, federationId *string) (*modules.ValidateResponse, error) {
-	resp, err := mint.Client.post("/mint/validate", request)
+	resp, err := mint.Client.postWithId("/mint/validate", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -246,12 +299,12 @@ func (mint *MintModule) Combine(request modules.CombineRequest) (*modules.Combin
 }
 
 ////////
-// ln //
+// Ln //
 ////////
 
 func (ln *LnModule) CreateInvoice(request modules.LnInvoiceRequest, federationId *string) (*modules.LnInvoiceResponse, error) {
 	fmt.Println("request: ", request)
-	resp, err := ln.Client.post("/ln/invoice", request)
+	resp, err := ln.Client.postWithId("/ln/invoice", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -264,7 +317,7 @@ func (ln *LnModule) CreateInvoice(request modules.LnInvoiceRequest, federationId
 }
 
 func (ln *LnModule) AwaitInvoice(request modules.AwaitInvoiceRequest, federationId *string) (*types.InfoResponse, error) {
-	resp, err := ln.Client.post("/ln/await-invoice", request)
+	resp, err := ln.Client.postWithId("/ln/await-invoice", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -277,7 +330,7 @@ func (ln *LnModule) AwaitInvoice(request modules.AwaitInvoiceRequest, federation
 }
 
 func (ln *LnModule) Pay(request modules.LnPayRequest, federationId *string) (*modules.LnPayResponse, error) {
-	resp, err := ln.Client.post("/ln/pay", request)
+	resp, err := ln.Client.postWithId("/ln/pay", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -290,7 +343,7 @@ func (ln *LnModule) Pay(request modules.LnPayRequest, federationId *string) (*mo
 }
 
 func (ln *LnModule) AwaitPay(request modules.AwaitLnPayRequest, federationId *string) (*modules.LnPayResponse, error) {
-	resp, err := ln.Client.post("/ln/await-pay", request)
+	resp, err := ln.Client.postWithId("/ln/await-pay", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
@@ -316,7 +369,7 @@ func (ln *LnModule) ListGateways() ([]modules.Gateway, error) {
 }
 
 func (ln *LnModule) SwitchGateway(request modules.SwitchGatewayRequest, federationId *string) (*modules.Gateway, error) {
-	resp, err := ln.Client.post("/ln/switch-gateway", request)
+	resp, err := ln.Client.postWithId("/ln/switch-gateway", request, *federationId)
 	if err != nil {
 		return nil, err
 	}
