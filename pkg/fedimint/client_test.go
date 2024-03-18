@@ -208,7 +208,7 @@ func TestAwaitInvoice(t *testing.T) {
 	fc := CreateNewFedimintClient()
 
 	awaitInvoiceRequest := modules.AwaitInvoiceRequest{
-		OperationID: "test_await_invoice",
+		OperationID: "TestAwaitInvoice",
 	}
 
 	infoResponse, err := fc.Ln.AwaitInvoice(awaitInvoiceRequest, &fc.FederationId)
@@ -242,7 +242,7 @@ func TestPay(t *testing.T) {
 	fc := CreateNewFedimintClient()
 
 	lnPayRequest := modules.LnPayRequest{
-		Payment_info:         "Test Payment",
+		Payment_info:         "TestPayment",
 		Finish_in_background: true,
 	}
 
@@ -265,5 +265,70 @@ func TestPay(t *testing.T) {
 	// intentionally giving wrong parameters
 	wrong_fed_id := "12112"
 	_, err1 := fc.Ln.Pay(lnPayRequest, &wrong_fed_id)
+	assert.NotEqual(t, err1, nil)
+}
+
+func TestAwaitPay(t *testing.T) {
+	fc := CreateNewFedimintClient()
+
+	awaitLnPayRequest := modules.AwaitLnPayRequest{
+		Operation_id: "TestAwaitLnPay",
+	}
+
+	lnPayResponse, err := fc.Ln.AwaitPay(awaitLnPayRequest, &fc.FederationId)
+	if err != nil {
+		assert.Equal(t, lnPayResponse, nil)
+		assert.Equal(t, lnPayResponse.Contract_id, nil)
+		assert.Equal(t, lnPayResponse.Fee, nil)
+		assert.Equal(t, lnPayResponse.Payment_type, nil)
+		assert.Equal(t, lnPayResponse.Pperation_id, nil)
+	} else {
+		assert.Equal(t, err, nil)
+		assert.NotEqual(t, lnPayResponse, nil)
+		assert.NotEqual(t, lnPayResponse.Contract_id, nil)
+		assert.NotEqual(t, lnPayResponse.Fee, nil)
+		assert.NotEqual(t, lnPayResponse.Payment_type, nil)
+		assert.NotEqual(t, lnPayResponse.Pperation_id, nil)
+	}
+
+	// intentionally giving wrong parameters
+	wrong_fed_id := "12112"
+	_, err1 := fc.Ln.AwaitPay(awaitLnPayRequest, &wrong_fed_id)
+	assert.NotEqual(t, err1, nil)
+}
+
+func TestListGateways(t *testing.T) {
+	fc := CreateNewFedimintClient()
+
+	gatewaysResponse, err := fc.Ln.ListGateways()
+	if err != nil {
+		assert.Equal(t, gatewaysResponse, nil)
+	} else {
+		assert.Equal(t, err, nil)
+		assert.NotEqual(t, gatewaysResponse, nil)
+	}
+}
+
+func TestSwitchGateway(t *testing.T) {
+	fc := CreateNewFedimintClient()
+
+	switchGatewayRequest := modules.SwitchGatewayRequest{
+		Gateway_id: "TestGateway1",
+	}
+
+	gatewayResponse, err := fc.Ln.SwitchGateway(switchGatewayRequest, &fc.FederationId)
+	if err != nil {
+		assert.Equal(t, gatewayResponse, nil)
+		assert.Equal(t, gatewayResponse.Active, true)
+		assert.NotEqual(t, gatewayResponse.Node_pub_key, nil)
+	} else {
+		assert.Equal(t, err, nil)
+		assert.Equal(t, gatewayResponse.Active, true)
+		assert.NotEqual(t, gatewayResponse.Node_pub_key, nil)
+	}
+
+	// intentionally giving wrong parameters
+	wrong_fed_id := "12112"
+	_, err1 := fc.Ln.SwitchGateway(switchGatewayRequest, &wrong_fed_id)
 	assert.NotEqual(t, err1, nil)
 }
