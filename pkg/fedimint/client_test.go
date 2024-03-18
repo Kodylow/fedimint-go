@@ -64,8 +64,13 @@ func TestCreateDepositAddress(t *testing.T) {
 
 	depositResponse, err := fc.Wallet.createDepositAddress(depositAddressRequest, &fc.FederationId)
 	if err != nil {
-		fmt.Println("Error creating deposit: ", err)
-		return
+		assert.Equal(t, depositResponse, nil)
+		assert.Equal(t, depositResponse.OperationID, nil)
+		assert.Equal(t, depositResponse.Address, nil)
+	} else {
+		assert.Equal(t, err, nil)
+		assert.NotEqual(t, depositResponse.OperationID, nil)
+		assert.NotEqual(t, depositResponse.Address, nil)
 	}
 
 	awaitDepositRequest := modules.AwaitDepositRequest{
@@ -87,11 +92,40 @@ func TestWithdraw(t *testing.T) {
 		AmountMsat: "10000",
 	}
 
-	withdrawResponse, err := fc.Wallet.withdraw(withdrawRequest, &fc.FederationId)
-	if err != nil {
-		fmt.Println("Error creating deposit: ", err)
-		return
-	}
+	withdrawResponse, _ := fc.Wallet.withdraw(withdrawRequest, &fc.FederationId)
 
 	assert.NotEqual(t, withdrawResponse, nil)
+
+	// Intentionally make an error (like - wrong FederationId/request)
+	wrong_fed_id := "12112"
+	_, err := fc.Wallet.withdraw(withdrawRequest, &wrong_fed_id)
+	assert.NotEqual(t, err, nil)
+}
+
+func TestAwaitWithdraw(t *testing.T) {
+	fc := CreateNewFedimintClient()
+
+	depositAddressRequest := modules.DepositAddressRequest{
+		Timeout: 3600,
+	}
+	depositResponse, _ := fc.Wallet.createDepositAddress(depositAddressRequest, &fc.FederationId)
+
+	awaitDepositRequest := modules.AwaitDepositRequest{
+		OperationID: depositResponse.OperationID,
+	}
+
+	awaitDepositResponse, err := fc.Wallet.awaitDeposit(awaitDepositRequest, &fc.FederationId)
+	if err != nil {
+		assert.Equal(t, awaitDepositResponse, nil)
+		assert.Equal(t, awaitDepositResponse.Status, nil)
+	} else {
+		assert.Equal(t, err, nil)
+		// println(awaitDepositResponse.Status)
+		assert.NotEqual(t, awaitDepositResponse.Status, nil)
+	}
+
+	// intentionally giving wrong parameters
+	wrong_fed_id := "12112"
+	_, err1 := fc.Wallet.awaitDeposit(awaitDepositRequest, &wrong_fed_id)
+	assert.NotEqual(t, err1, nil)
 }
